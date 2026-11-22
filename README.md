@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tanim Ahmed — portfolio
 
-## Getting Started
+Next.js 16 site, exported as static files (`output: "export"`) and hosted on
+Cloudflare Pages. All copy lives in `src/data/content.ts`.
 
-First, run the development server:
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Build and preview the static site
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build      # writes the whole site to out/
+npm run preview    # serves out/ at http://localhost:3000, like a static host
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`out/` is plain HTML/CSS/JS. Any static host can serve it.
 
-## Learn More
+## Deploy to Cloudflare Pages
 
-To learn more about Next.js, take a look at the following resources:
+### Option A — connect the GitHub repo (rebuilds on every push)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push this project to a GitHub repository.
+2. In the Cloudflare dashboard: **Workers & Pages → Create → Pages → Connect to Git**,
+   then pick the repository.
+3. Build settings:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   | Setting                | Value                          |
+   | ---------------------- | ------------------------------ |
+   | Framework preset       | Next.js (Static HTML Export)   |
+   | Root directory         | `site` (if the repo root is the `Portfolio` folder; leave empty if the repo *is* `site`) |
+   | Build command          | `npm run build`                |
+   | Build output directory | `out`                          |
 
-## Deploy on Vercel
+   Node is pinned to 22 by `.node-version`, so no environment variable is needed.
+4. **Save and Deploy.** The site goes live at `<project>.pages.dev`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Option B — upload a local build (no Git needed)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+npx wrangler pages deploy out --project-name <project-name>
+```
+
+Wrangler asks you to log in to Cloudflare the first time.
+
+### Custom domain
+
+In the Pages project: **Custom domains → Set up a custom domain**. If the
+domain's DNS is on Cloudflare, it is configured automatically.
+
+## Notes
+
+- `public/_headers` sets Cloudflare response headers: build assets in
+  `/_next/static/` are cached for a year (their filenames are content-hashed),
+  plus basic security headers.
+- `trailingSlash: true` makes every page a folder with an `index.html`
+  (`/work/the-eye/`), which static hosts resolve unambiguously.
+- Unknown URLs are served `404.html`.
+- No server features are used. Cache Components and next/image optimization
+  stay off because a static export can't run them.
