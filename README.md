@@ -1,7 +1,7 @@
 # Tanim Ahmed — portfolio
 
 Next.js 16 site, exported as static files (`output: "export"`) and hosted on
-Cloudflare (a Worker serving static assets). All copy lives in `src/data/content.ts`.
+GitHub Pages. All copy lives in `src/data/content.ts`.
 
 ## Local development
 
@@ -19,44 +19,28 @@ npm run preview    # serves out/ at http://localhost:3000, like a static host
 
 `out/` is plain HTML/CSS/JS. Any static host can serve it.
 
-## Deploy to Cloudflare
+## Deploy (GitHub Pages)
 
-The site is served by a Cloudflare **Worker with static assets**, configured in
-`wrangler.jsonc`: the Worker has no code and only serves the files in `out/`.
+Live at **https://og-tanim.github.io**.
 
-### Connected repository (current setup)
+`.github/workflows/deploy.yml` builds the static export and publishes `out/` to
+GitHub Pages on every push to `main`. It can also be started by hand from the
+repo's **Actions** tab ("Deploy to GitHub Pages" → **Run workflow**).
 
-The Cloudflare project `portfolio` builds from GitHub on every push to `main`:
+Pages is set to deploy from **GitHub Actions** (Settings → Pages → Source).
+The repo must stay named `OG-Tanim.github.io` for the site to live at the root
+URL. Under any other name it would move to `/<repo-name>`, which this build
+isn't set up for.
 
-| Setting        | Value                |
-| -------------- | -------------------- |
-| Build command  | `npm run build`      |
-| Deploy command | `npx wrangler deploy`|
-| Root directory | *(empty — the repo is this folder)* |
+### Custom domain (optional)
 
-`wrangler.jsonc` must stay in the repo. Without it, `wrangler deploy` tries to
-auto-configure OpenNext (a Next.js server adapter), which fails on a static
-export.
-
-### Deploy from your machine
-
-```bash
-npm run build
-npx wrangler deploy      # asks you to log in to Cloudflare the first time
-```
-
-### Custom domain
-
-In the Worker's settings: **Domains & Routes → Add → Custom domain**. If the
-domain's DNS is on Cloudflare, it is configured automatically.
+Buy a domain, then in **Settings → Pages → Custom domain** enter it and follow
+GitHub's DNS instructions. Tick **Enforce HTTPS** once the certificate is issued.
 
 ## Notes
 
-- `wrangler.jsonc` serves `out/` with `auto-trailing-slash` (`/work/the-eye`
-  redirects to `/work/the-eye/`) and `404-page` (unknown URLs get `404.html`).
-- `public/_headers` sets Cloudflare response headers: build assets in
-  `/_next/static/` are cached for a year (their filenames are content-hashed),
-  plus basic security headers.
+- Unknown URLs get `404.html`, which GitHub Pages serves automatically.
+- The workflow adds `out/.nojekyll` so Pages doesn't drop the `_next/` folder.
 - `trailingSlash: true` makes every page a folder with an `index.html`
   (`/work/the-eye/`), which static hosts resolve unambiguously.
 - No server features are used. Cache Components and next/image optimization

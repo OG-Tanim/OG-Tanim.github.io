@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Static export: `next build` writes a plain HTML/CSS/JS site to out/,
-  // which Cloudflare Pages serves as files. No server needed.
+  // which GitHub Pages serves as files. No server needed.
   // Cache Components / Partial Prefetching are off: they need a Next server
   // (PPR can't run in export mode), and every page here is fully static.
   output: "export",
