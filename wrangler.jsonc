@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Static site: `npm run build` exports plain files to out/, and this Worker
+  // only serves them. Having this file stops `wrangler deploy` from
+  // auto-configuring OpenNext (a Next.js *server* adapter), which fails on a
+  // static export.
+  "name": "portfolio",
+  "compatibility_date": "2026-11-19",
+  "assets": {
+    "directory": "./out",
+    // /work/the-eye -> /work/the-eye/ (matches trailingSlash: true)
+    "html_handling": "auto-trailing-slash",
+    // Unknown URLs get out/404.html with a 404 status
+    "not_found_handling": "404-page"
+  }
+}

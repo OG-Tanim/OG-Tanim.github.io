@@ -1,7 +1,7 @@
 # Tanim Ahmed — portfolio
 
 Next.js 16 site, exported as static files (`output: "export"`) and hosted on
-Cloudflare Pages. All copy lives in `src/data/content.ts`.
+Cloudflare (a Worker serving static assets). All copy lives in `src/data/content.ts`.
 
 ## Local development
 
@@ -19,46 +19,45 @@ npm run preview    # serves out/ at http://localhost:3000, like a static host
 
 `out/` is plain HTML/CSS/JS. Any static host can serve it.
 
-## Deploy to Cloudflare Pages
+## Deploy to Cloudflare
 
-### Option A — connect the GitHub repo (rebuilds on every push)
+The site is served by a Cloudflare **Worker with static assets**, configured in
+`wrangler.jsonc`: the Worker has no code and only serves the files in `out/`.
 
-1. Push this project to a GitHub repository.
-2. In the Cloudflare dashboard: **Workers & Pages → Create → Pages → Connect to Git**,
-   then pick the repository.
-3. Build settings:
+### Connected repository (current setup)
 
-   | Setting                | Value                          |
-   | ---------------------- | ------------------------------ |
-   | Framework preset       | Next.js (Static HTML Export)   |
-   | Root directory         | `site` (if the repo root is the `Portfolio` folder; leave empty if the repo *is* `site`) |
-   | Build command          | `npm run build`                |
-   | Build output directory | `out`                          |
+The Cloudflare project `portfolio` builds from GitHub on every push to `main`:
 
-   Node is pinned to 22 by `.node-version`, so no environment variable is needed.
-4. **Save and Deploy.** The site goes live at `<project>.pages.dev`.
+| Setting        | Value                |
+| -------------- | -------------------- |
+| Build command  | `npm run build`      |
+| Deploy command | `npx wrangler deploy`|
+| Root directory | *(empty — the repo is this folder)* |
 
-### Option B — upload a local build (no Git needed)
+`wrangler.jsonc` must stay in the repo. Without it, `wrangler deploy` tries to
+auto-configure OpenNext (a Next.js server adapter), which fails on a static
+export.
+
+### Deploy from your machine
 
 ```bash
 npm run build
-npx wrangler pages deploy out --project-name <project-name>
+npx wrangler deploy      # asks you to log in to Cloudflare the first time
 ```
-
-Wrangler asks you to log in to Cloudflare the first time.
 
 ### Custom domain
 
-In the Pages project: **Custom domains → Set up a custom domain**. If the
+In the Worker's settings: **Domains & Routes → Add → Custom domain**. If the
 domain's DNS is on Cloudflare, it is configured automatically.
 
 ## Notes
 
+- `wrangler.jsonc` serves `out/` with `auto-trailing-slash` (`/work/the-eye`
+  redirects to `/work/the-eye/`) and `404-page` (unknown URLs get `404.html`).
 - `public/_headers` sets Cloudflare response headers: build assets in
   `/_next/static/` are cached for a year (their filenames are content-hashed),
   plus basic security headers.
 - `trailingSlash: true` makes every page a folder with an `index.html`
   (`/work/the-eye/`), which static hosts resolve unambiguously.
-- Unknown URLs are served `404.html`.
 - No server features are used. Cache Components and next/image optimization
   stay off because a static export can't run them.
