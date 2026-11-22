@@ -90,7 +90,9 @@ export function Lab() {
               href={l.href}
               target="_blank"
               rel="noopener"
-              className="group grid grid-cols-[2.2rem_minmax(0,1fr)_auto] items-baseline gap-x-4 py-5 md:grid-cols-[2.6rem_minmax(0,1.1fr)_minmax(0,1.4fr)_auto]"
+              // Fixed tracks (no `auto`), so every row gets identical column
+              // widths and the name / note / stack columns line up row to row.
+              className="group grid grid-cols-[2.2rem_minmax(0,1fr)_1.25rem] items-baseline gap-x-4 py-5 md:grid-cols-[2.6rem_minmax(0,1fr)_minmax(0,1.25fr)_1.25rem] md:gap-x-6 lg:grid-cols-[2.6rem_minmax(0,1fr)_minmax(0,1.25fr)_10.5rem_1.25rem]"
             >
               <span className="font-mono text-xs text-dim transition-colors group-hover:text-amber">
                 {String(i + 1).padStart(2, "0")}
@@ -102,11 +104,9 @@ export function Lab() {
                 <span className="mt-1 block text-sm text-muted md:hidden">{l.note}</span>
               </span>
               <span className="hidden text-sm text-muted md:block">{l.note}</span>
-              <span className="flex items-center gap-4">
-                <span className="hidden font-mono text-[11px] text-dim lg:inline">{l.stack}</span>
-                <span className="text-dim transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-fg">
-                  ↗
-                </span>
+              <span className="hidden font-mono text-[11px] text-dim lg:block">{l.stack}</span>
+              <span className="justify-self-end text-dim transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-fg">
+                ↗
               </span>
             </a>
           </li>
